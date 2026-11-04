@@ -1,3 +1,4 @@
+
 const fs = require('fs').promises;
 const path = require('path');
 const RESOURCES_FILE = path.join('utils', 'resources.json');
@@ -46,6 +47,36 @@ async function deleteResource(req, res) {
             message: error.message
         });
     }
+}
+
+
+// Function to delete a resource by its ID
+function confirmDeleteResource(id) {
+
+    // Ask the user to confirm deletion before proceeding
+    if (!confirm("Are you sure you want to delete this resource?")) {
+        return; // Exit function if user cancels
+    }
+
+    // Configure request as DELETE to the delete-resource endpoint with the resource ID
+    var request = new XMLHttpRequest();
+    request.open("DELETE", "/delete-resource/" + id, true);
+    request.setRequestHeader("Content-Type", "application/json");
+
+    request.onload = function () {
+        var response = JSON.parse(request.responseText);
+
+        // If deletion was successful, show a confirmation
+        if (request.status === 200) {
+            alert(response.message);
+            viewResources(); // Refresh the table to reflect the deleted resource
+        } else {
+            // Show error message if deletion failed
+            alert(response.message || "Unable to delete resource.");
+        }
+    };
+
+    request.send();
 }
 
 module.exports = { deleteResource };
